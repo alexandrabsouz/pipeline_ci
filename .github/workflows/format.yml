@@ -1,36 +1,31 @@
-name:  Verify LINT
+name: Verify Format
 
 on: pull_request
 
 jobs:
-  ckeck_format:
-    name: check format
+  check_format:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         elixir: [1.13]
         otp: [24]
-
+    
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-elixir@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
 
-    - name: Set up Elixir
-    - uses: erlef/setup-elixir@v1
-      with:
-        elixir-version: ${{ matrix.elixir }}
-        otp-version: ${{ matrix.otp }}
+      - uses: actions/cache@v1
+        id: mix-cache-format
+        with:
+          path: deps
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
-    - name: Restore dependencies cache
-      uses: actions/cache@v3
-      id: mix-cache-format
-      with:
-        path: deps
-        key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }
-        restore-keys: ${{ runner.os }}-mix-
-
-    - name: Install dependencies
-      if: steps.mix-cache-format.outputs.cache-hit != 'true'
-      run: mix deps.get
-
-    - name: ===> FORMAT
-      run: mix format --check-formatted
+      - name: Install Mix Dependencies
+        if: steps.mix-cache-format.outputs.cache-hit != 'true'
+        run: mix deps.get
+        
+      - name: ===> FORMAT
+        run: mix format --check-formatted
