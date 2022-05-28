@@ -1,25 +1,25 @@
 name:  Verify LINT
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: pull_request
+
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  ckeck_format:
 
-    name: Build and test
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        elixir: [1.13]
+        otp: [24]
+        
     steps:
     - uses: actions/checkout@v3
 
     - name: Set up Elixir
-      uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
+    - uses: erlef/setup-elixir@v1
       with:
         elixir-version: ${{ matrix.elixir }}
         otp-version: ${{ matrix.otp }}
