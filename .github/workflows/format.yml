@@ -2,19 +2,15 @@ name:  Verify LINT
 
 on: pull_request
 
-
-permissions:
-  contents: read
-
 jobs:
   ckeck_format:
-
+    name: check format
     runs-on: ubuntu-latest
     strategy:
       matrix:
         elixir: [1.13]
         otp: [24]
-        
+
     steps:
     - uses: actions/checkout@v3
 
